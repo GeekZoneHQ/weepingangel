@@ -51,9 +51,61 @@ The default values are:
 - `remove_days` = 84 days (12 weeks)
 - `reminder_message` = "Are you still working on this? Please remember to regularly share your progress with a brief comment. If you are stuck, please don't suffer in silence, ask for help! Thanks!"
 - `warning_message` = "Are you [still alive](https://youtu.be/Y6ljFaKRTrI)? Please remember to regularly share your progress with a brief comment. If I don't hear from you before `date` I will un-assign this issue so that others can have a go. Thanks!"
-- `remove_message` = "It seems that you aren't working on this issue at the moment, that's ok! I have unassigned for the time being you so that others can have a go. If you are still working on it, please share your progress and challenges in comment and include the command `/mine` to reassign yourself. Thanks!"
+- `remove_message` = "It seems that you aren't working on this issue at the moment, that's ok! I have unassigned for the time being you so that others can have a go. If you are still working on it, please share your progress and challenges in comment. Thanks!"
 
 These defaults are intended to respect the free time of participants. You can change them to suit your own preferences in the yaml file.
+
+## Action YML
+
+### Suggested
+
+If you are happy with the defaults, you can use the suggested yml file.
+
+```yaml
+name: Weeping Angel
+on:
+  schedule:
+    - cron:  '0 5 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Run Weeping Angel action
+      env:
+        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        GH_REPOSITORY: ${{ github.repository }}
+      uses: GeekZoneHQ/weepingangel@main
+```
+
+### Custom
+
+If you want to provide your own values, you can use the custom yml file.
+
+```yaml
+name: Weeping Angel
+on:
+  schedule:
+    - cron:  '0 5 * * *'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+ 
+    steps:
+    - name: Run Weeping Angel action
+      uses: GeekZoneHQ/weepingangel@main
+      env:
+        GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        GH_REPOSITORY: ${{ github.repository }}
+      with:
+        reminder_days: 1000
+        warning_days: 2000
+        remove_days: 3000
+        reminder_message: Your amazing custom reminder message
+        warning_message: Your amazing custom warning message
+        remove_message: Your amazing custom remove message
+```
+
+
 
 # Recommended accompaniment
 
