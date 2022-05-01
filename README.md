@@ -1,6 +1,6 @@
 # Weeping Angel
 
-The Weeping Angel is an extremely powerful species of quantum-locked humanoid. This particular form of the species gains energy by removing a victim from their GitHub issue, rather than by removing their head from their body. The only way to thwart their "merciful" nature is to contribute to the issue frequently.
+The Weeping Angel is an extremely powerful species of quantum-locked humanoid. This particular specimen was inadvertently banished to the Internet by The Doctor, so now gleans energy by removing a victim from their GitHub issue, rather than by removing their head from their body. The only way to thwart their "merciful" nature is to contribute to your GitHub issues frequently.
 
 # Alternative to Stale Bot
 
@@ -8,7 +8,7 @@ The [GitHub stale bot](https://github.com/marketplace/stale) is a bot that autom
 
 For example, say you went to a hospital with a broken arm. You might be told that the Doctor was unable to see you right now and that you would wait for them in the waiting room. Some hours pass and the secretary comes over and tells you that your case has been closed as you have been in the waiting room for too long. Just as you go to head home, you notice someone with a paper cut being seen by the Doctor!
 
-In that situation, you would probably get a little miffed, and understandably so. It is the same for our community ideas. We believe that our stakeholders contributions are all valuable and important. Just because we have not been able to get around to building a particular feature yet, does not mean it is not worth doing at all.
+In that situation, you would probably get a little miffed, and understandably so. It is the same for our community ideas. We believe that our stakeholders contributions are all valuable and important. Just because we have not had the capacity to build a particular feature yet, does not mean it is not worth doing at all. [Old wine is good wine](https://youtu.be/YAQ4BD9fHvs).
 
 # Why is this important?
 Ensures that
@@ -31,22 +31,34 @@ Weeping Angel monitors each assigned issue to discern whether you are looking at
 
 - IF issue is not assigned
     <br /> THEN return
+- IF issue is a PR
+    <br /> THEN return
 - IF issue has linked PR
     <br /> THEN return
-- IF issue assignee has not looked for 4 weeks 
+- IF issue assignee has not looked for `reminder_days` days 
   <br />THEN Weeping Angel to post a comment in the issue
-  > @[assignee] Are you still working on this? Please remember to regularly share your progress with a brief comment. If you are stuck, please don't suffer in silence, ask for help! Thanks!
-- IF issue assignee has not looked for 6 weeks
+  > @[assignee] `reminder_message`
+- IF issue assignee has not looked for `warning_days` days 
   <br />THEN Weeping Angel posts a comment in the issue
-  > @[assignee] Are you still working on this? Please remember to regularly share your progress with a brief comment. If I don't hear from you before `date` I will un-assign this issue so that others can have a go. Thanks!
-- if issue assignee has not looked for 8 weeks
+  > @[assignee] `warning_message`
+- if issue assignee has not looked for `remove_days` days 
   <br />THEN Weeping Angel posts a comment in the issue
-  > @[assignee] It seems that you aren't working on this issue at the moment, that's ok! I have unassigned you so that others can have a go. If you are still working on it, please share your progress and challenges in comment and include the command `!mine` to reassign yourself. Thanks!
+  > @[assignee] `remove_message`
  
+The default values are:
+- `reminder_days` = 28 days (4 weeks)
+- `warning_days` = 56 days (8 weeks)
+- `remove_days` = 84 days (12 weeks)
+- `reminder_message` = "Are you still working on this? Please remember to regularly share your progress with a brief comment. If you are stuck, please don't suffer in silence, ask for help! Thanks!"
+- `warning_message` = "Are you [still alive](https://youtu.be/Y6ljFaKRTrI)? Please remember to regularly share your progress with a brief comment. If I don't hear from you before `date` I will un-assign this issue so that others can have a go. Thanks!"
+- `remove_message` = "It seems that you aren't working on this issue at the moment, that's ok! I have unassigned for the time being you so that others can have a go. If you are still working on it, please share your progress and challenges in comment and include the command `/mine` to reassign yourself. Thanks!"
 
+These defaults are intended to respect the free time of participants. You can change them to suit your own preferences in the yaml file.
 
 # Recommended accompaniment
 
-To ensure that issues are triaged correctly, we recommend using the Weeping Angel in conjunction with our
-- [Eisenhower Priority Labeler](https://github.com/GeekZoneHQ/eisenhower)
-- [This One Is Mine](https://github.com/GeekZoneHQ/thisoneismine)
+To ensure that issues are triaged correctly, we recommend using the Weeping Angel in conjunction with these other GitHub actions.
+- [Eisenhower](https://github.com/GeekZoneHQ/eisenhower)
+ <br />Priority Labeler which ensures all your tickets are prioritized, preventing decision fatigue.
+- [Take Action](https://github.com/bdougie/take-action)
+ <br />Allow anyone to assign themselves to an issue using a comment.
