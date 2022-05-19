@@ -1,0 +1,7 @@
+---
+name: "Weeping Angel Issue Reminder"
+description: "Reminds issue assignees to share their progress on an issue"
+author: "Geek.Zone"
+runs:
+  using: "docker"
+  image: geekzone/weepingangel:latest
