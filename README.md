@@ -25,7 +25,7 @@ If nobody is currently working on an issue, contributors should be given the fre
 
 Unassigns assignees from an issue if they have not contributed to it for a while.
 
-## Details
+## What it does
 
 Weeping Angel monitors each assigned issue to discern whether you are looking at it. This is done by calculating the number of days since the issue received a comment or a commit on a branch with a matching issue number.
 
@@ -44,16 +44,25 @@ Weeping Angel monitors each assigned issue to discern whether you are looking at
 - if issue assignee has not looked for `remove_days` days 
   <br />THEN Weeping Angel posts a comment in the issue
   > @[assignee] `remove_message`
- 
-The default values are:
+
+## Running
+
+Weeping Angel is designed to run *once per day* via cron. It **must** be run every day and **only** once.
+
+
+## Inputs
+The inputs and their default values are:
 - `reminder_days` = 28 days (4 weeks)
 - `warning_days` = 56 days (8 weeks)
 - `remove_days` = 84 days (12 weeks)
-- `reminder_message` = "Are you still working on this? Please remember to regularly share your progress with a brief comment. If you are stuck, please don't suffer in silence, ask for help! Thanks!"
-- `warning_message` = "Are you [still alive](https://youtu.be/Y6ljFaKRTrI)? Please remember to regularly share your progress with a brief comment. If I don't hear from you before `date` I will un-assign this issue so that others can have a go. Thanks!"
-- `remove_message` = "It seems that you aren't working on this issue at the moment, that's ok! I have unassigned for the time being you so that others can have a go. If you are still working on it, please share your progress and challenges in comment. Thanks!"
-
-These defaults are intended to respect the free time of participants. You can change them to suit your own preferences in the yaml file.
+- `reminder_message` = <br>
+  > Are you still working on this? Please remember to regularly share your progress with a brief comment. If you are stuck, please don't suffer in silence, ask for help by logging an issue! Thanks!
+- `warning_message` = <br>
+  > Are you still working on this? Please remember to regularly share your progress with a brief comment. If I don't hear from you before `calculated-remove-date` I will un-assign this issue so that others can have a go. Thanks!
+- `remove_message` = <br>
+  > It seems that you aren't working on this issue at the moment, that's ok! I have unassigned for the time being you so that others can have a go. If you are still working on it, please share your progress and challenges in comment. Thanks!
+- `self_assign_trigger` = `None`<br>
+  The string that you are using to trigger [self assignment](https://github.com/bdougie/take-action).
 
 ## Action YML
 
@@ -65,10 +74,13 @@ If you are happy with the defaults, you can use the suggested yml file.
 name: Weeping Angel
 on:
   schedule:
-    - cron:  '0 5 * * *'
+    - cron:  '0 10 * * *'
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: geekzone:weeping-angel
+      
     steps:
     - name: Run Weeping Angel action
       env:
@@ -85,7 +97,7 @@ If you want to provide your own values, you can use the custom yml file.
 name: Weeping Angel
 on:
   schedule:
-    - cron:  '0 5 * * *'
+    - cron:  '0 10 * * *'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -103,6 +115,7 @@ jobs:
         reminder_message: Your amazing custom reminder message
         warning_message: Your amazing custom warning message
         remove_message: Your amazing custom remove message
+        self_assign: /mine
 ```
 
 
