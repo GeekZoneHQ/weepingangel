@@ -1,29 +1,31 @@
 ---
+# 1. create a version tag
+# 2. create a release
+# 3. push the tag to origin
+# 4. create a container image
+# 5. push the image to docker hub
+
 name: tag and release
 on:
   push:
     branches:
       - 'main'
 jobs:
-  calculate-version:
-    - uses: paulhatch/semantic-version@v4.0.2
+  checkout:
+      uses: actions/checkout@v2
       with:
-        # The prefix to use to identify tags
+        fetch-depth: 0
+  calculate-version:
+      uses: paulhatch/semantic-version@v4.0.2
+      with:
         tag_prefix: "v"
-        # A string which, if present in a git commit, indicates that a change represents a
-        # major (breaking) change, supports regular expressions wrapped with '/'
         major_pattern: "(MAJOR)"
-        # Same as above except indicating a minor change, supports regular expressions wrapped with '/'
         minor_pattern: "(MINOR)"
-        # A string to determine the format of the version output
         format: "${major}.${minor}.${patch}-prerelease${increment}"
-        # If this is set to true, *every* commit will be treated as a new version.
         bump_each_commit: true
-        # If true, the body of commits will also be searched for major/minor patterns to determine the version type.
         search_commit_body: false
-        # The output method used to generate list of users, 'csv' or 'json'.
         user_format_type: "csv"
-  release:
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - uses: avakar/tag-and-release@v1
@@ -31,3 +33,20 @@ jobs:
           tag_name: calculate-version.output.tag_name
         env:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: geekzone/weepingangel:latest,geekzone/weepingangel:${{ calculate-version.output.tag_name }}
