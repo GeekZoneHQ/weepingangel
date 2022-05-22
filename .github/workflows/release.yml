@@ -9,17 +9,15 @@ name: tag and release
 on:
   push:
     branches:
-      - 'main'
+      - main
 jobs:
   checkout:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-        ref: 'main'
-        token: ${{ secrets.GZBOT_GHPAT_GITHUB_ACTIONS_RELEASE }}
-  - name: calculate-version
+    uses: actions/checkout@v3
+    with:
+      fetch-depth: 0
+      ref: 'main'
+      token: ${{ secrets.GZBOT_GHPAT_GITHUB_ACTIONS_RELEASE }}
+  calculate-version:
     uses: paulhatch/semantic-version@v4.0.2
     with:
       tag_prefix: "v"
@@ -29,16 +27,18 @@ jobs:
       bump_each_commit: true
       search_commit_body: false
       user_format_type: "csv"
-  - name: create-release
+  create-release:
     runs-on: ubuntu-latest
+    needs: [calculate-version]
     steps:
       - uses: avakar/tag-and-release@v1
         with:
           tag_name: calculate-version.output.tag_name
         env:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-  name: container-to-docker
+  container-to-docker:
     runs-on: ubuntu-latest
+    needs: [create-release]
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
