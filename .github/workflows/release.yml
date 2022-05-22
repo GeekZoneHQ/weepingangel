@@ -12,13 +12,13 @@ on:
       - 'main'
 jobs:
   checkout:
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         ref: 'main'
         token: ${{ secrets.GZBOT_GHPAT_GITHUB_ACTIONS_RELEASE }}
   calculate-version:
-      uses: paulhatch/semantic-version@v4.0.2
+    - uses: paulhatch/semantic-version@v4.0.2
       with:
         tag_prefix: "v"
         major_pattern: "(MAJOR)"
