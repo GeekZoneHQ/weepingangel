@@ -1,0 +1,52 @@
+---
+# 1. create a version tag
+# 2. create a release
+# 3. push the tag to origin
+# 4. create a container image
+# 5. push the image to docker hub
+
+name: tag and release
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  checkout:
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+  calculate-version:
+      uses: paulhatch/semantic-version@v4.0.2
+      with:
+        tag_prefix: "v"
+        major_pattern: "(MAJOR)"
+        minor_pattern: "(MINOR)"
+        format: "${major}.${minor}.${patch}-prerelease${increment}"
+        bump_each_commit: true
+        search_commit_body: false
+        user_format_type: "csv"
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: avakar/tag-and-release@v1
+        with:
+          tag_name: calculate-version.output.tag_name
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: geekzone/weepingangel:latest,geekzone/weepingangel:${{ calculate-version.output.tag_name }}
