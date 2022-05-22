@@ -12,9 +12,11 @@ on:
       - 'main'
 jobs:
   checkout:
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
+        ref: 'main'
+        token: ${{ secrets.GZBOT_GHPAT_GITHUB_ACTIONS_RELEASE }}
   calculate-version:
       uses: paulhatch/semantic-version@v4.0.2
       with:
@@ -49,4 +51,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: geekzone/weepingangel:latest,geekzone/weepingangel:${{ calculate-version.output.tag_name }}
+          tags: geekzone/weepingangel:${{ calculate-version.output.tag_name }}
