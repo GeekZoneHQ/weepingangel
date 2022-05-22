@@ -12,22 +12,24 @@ on:
       - 'main'
 jobs:
   checkout:
-    - uses: actions/checkout@v3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         ref: 'main'
         token: ${{ secrets.GZBOT_GHPAT_GITHUB_ACTIONS_RELEASE }}
-  calculate-version:
-    - uses: paulhatch/semantic-version@v4.0.2
-      with:
-        tag_prefix: "v"
-        major_pattern: "(MAJOR)"
-        minor_pattern: "(MINOR)"
-        format: "${major}.${minor}.${patch}-prerelease${increment}"
-        bump_each_commit: true
-        search_commit_body: false
-        user_format_type: "csv"
-  create-release:
+  - name: calculate-version
+    uses: paulhatch/semantic-version@v4.0.2
+    with:
+      tag_prefix: "v"
+      major_pattern: "(MAJOR)"
+      minor_pattern: "(MINOR)"
+      format: "${major}.${minor}.${patch}-prerelease${increment}"
+      bump_each_commit: true
+      search_commit_body: false
+      user_format_type: "csv"
+  - name: create-release
     runs-on: ubuntu-latest
     steps:
       - uses: avakar/tag-and-release@v1
@@ -35,7 +37,7 @@ jobs:
           tag_name: calculate-version.output.tag_name
         env:
           GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-  docker:
+  name: container-to-docker
     runs-on: ubuntu-latest
     steps:
       - name: Set up QEMU
