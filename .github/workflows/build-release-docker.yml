@@ -5,54 +5,74 @@
 # 4. create a container image
 # 5. push the image to docker hub
 
-name: tag and release
+name: build and release
 on:
   push:
     branches:
       - main
+
+env:
+  IMAGE_NAME: geekzone/weepingangel
+
 jobs:
-  checkout:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      with:
-      fetch-depth: 0
-      ref: 'main'
-      token: ${{ secrets.GZBOT_GHPAT_GITHUB_ACTIONS_RELEASE }}
-  calculate-version:
-    uses: paulhatch/semantic-version@v4.0.2
-    with:
-      tag_prefix: "v"
-      major_pattern: "(MAJOR)"
-      minor_pattern: "(MINOR)"
-      format: "${major}.${minor}.${patch}-prerelease${increment}"
-      bump_each_commit: true
-      search_commit_body: false
-      user_format_type: "csv"
-  create-release:
-    runs-on: ubuntu-latest
-    needs: [calculate-version]
-    steps:
-      - uses: avakar/tag-and-release@v1
-        with:
-          tag_name: calculate-version.output.tag_name
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-  container-to-docker:
-    runs-on: ubuntu-latest
-    needs: [create-release]
-    steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+      - name: Check out code
+        uses: actions/checkout@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
       - name: Login to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
-        uses: docker/build-push-action@v3
+
+      - name: Build
+        id: docker_build
+        uses: docker/build-push-action@v2
         with:
-          push: true
-          tags: geekzone/weepingangel:${{ calculate-version.output.tag_name }}
+          push: false
+          load: true
+          tags: ${{ env.IMAGE_NAME }}:${{ github.run_number }},${{ env.IMAGE_NAME }}:latest
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.11.2
+        with:
+          image-ref: '${{ env.IMAGE_NAME }}:${{ github.run_number }}'
+          format: 'github'
+          output: trivy-results.sarif
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: trivy-results.sarif
+
+      - name: Push to DockerHub
+        if: ${{ success() }}
+        uses: docker/push-action@v1
+        with:
+          repository: ${{ env.IMAGE_NAME }}
+          tags: |
+            ${{ github.run_number }}
+            latest
+
+      - name: Archive Release
+        uses: thedoctor0/zip-release@0.7.1
+        with:
+          type: 'zip'
+          filename: 'release.zip'
+          path: 'src/*'
+
+      - name: Upload Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: "release.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: latest
