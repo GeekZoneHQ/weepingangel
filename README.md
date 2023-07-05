@@ -68,7 +68,7 @@ The inputs and their default values are:
 
 ### Suggested
 
-If you are happy with the defaults, you can use the suggested yml file.
+If you are happy with the defaults, you can use the suggested `.github/workflows/weepingangel.yml` file.
 
 ```yaml
 name: Weeping Angel
@@ -78,15 +78,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container:
-      image: geekzone:weeping-angel
-      
+     
     steps:
     - name: Run Weeping Angel action
+      uses: GeekZoneHQ/weepingangel@latest
       env:
         GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
         GH_REPOSITORY: ${{ github.repository }}
-      uses: GeekZoneHQ/weepingangel@main
 ```
 
 ### Custom
