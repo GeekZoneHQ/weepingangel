@@ -56,12 +56,9 @@ jobs:
 
       - name: Push to DockerHub
         if: ${{ success() }}
-        uses: docker/push-action@v1
-        with:
-          repository: ${{ env.IMAGE_NAME }}
-          tags: |
-            ${{ github.run_number }}
-            latest
+        run: |
+          docker push ${{ env.IMAGE_NAME }}:${{ github.run_number }}
+          docker push ${{ env.IMAGE_NAME }}:latest
 
       - name: Archive Release
         uses: thedoctor0/zip-release@0.7.1
