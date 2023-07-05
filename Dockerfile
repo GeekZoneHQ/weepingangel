@@ -1,7 +1,6 @@
-FROM python:3.9.13
+FROM python:3.10-alpine
 WORKDIR /app
-COPY requirements.txt requirements.txt
-COPY main.py main.py
+COPY src/requirements.txt requirements.txt
+COPY src/main.py main.py
 RUN pip install -r requirements.txt
-COPY . .
 CMD ["python3", "main.py"]
